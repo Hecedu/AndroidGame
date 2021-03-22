@@ -1,34 +1,45 @@
+using System;
+
 using Android.App;
+using Android.Content;
+using Android.Runtime;
 using Android.Content.PM;
-using Android.OS;
 using Android.Views;
+using Android.Widget;
+using Android.OS;
+
+#if OUYA
+using Ouya.Console.Api;
+#endif
+
 using Microsoft.Xna.Framework;
 
-namespace AndroidGame
+namespace AndroidGame.Droid
 {
-    [Activity(
-        Label = "@string/app_name",
-        MainLauncher = true,
-        Icon = "@drawable/icon",
-        AlwaysRetainTaskState = true,
-        LaunchMode = LaunchMode.SingleInstance,
-        ScreenOrientation = ScreenOrientation.FullUser,
-        ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden | ConfigChanges.ScreenSize
-    )]
-    public class Activity1 : AndroidGameActivity
-    {
-        private Game1 _game;
-        private View _view;
+	[Activity(Label = "AndroidGame.Droid",
+		MainLauncher = true,
+		Icon = "@drawable/icon",
+		Theme = "@style/Theme.Splash",
+		AlwaysRetainTaskState = true,
+		LaunchMode = LaunchMode.SingleInstance,
+		ConfigurationChanges = ConfigChanges.Orientation |
+		ConfigChanges.KeyboardHidden |
+		ConfigChanges.Keyboard |
+		ConfigChanges.ScreenSize)]
+#if OUYA
+	[IntentFilter(new[] { Intent.ActionMain }
+		, Categories = new[] { Intent.CategoryLauncher, OuyaIntent.CategoryGame })]
+#endif
+	public class Activity1 : AndroidGameActivity
+	{
+		protected override void OnCreate(Bundle bundle)
+		{
+			base.OnCreate(bundle);
 
-        protected override void OnCreate(Bundle bundle)
-        {
-            base.OnCreate(bundle);
+			var g = new Game1();
+			SetContentView(g.Services.GetService<View>());
+			g.Run();
+		}
 
-            _game = new Game1();
-            _view = _game.Services.GetService(typeof(View)) as View;
-
-            SetContentView(_view);
-            _game.Run();
-        }
-    }
+	}
 }
